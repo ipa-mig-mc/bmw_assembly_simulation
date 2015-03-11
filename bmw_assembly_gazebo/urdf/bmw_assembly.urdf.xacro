@@ -1,0 +1,184 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+	name="bmw_assembly">
+
+  <xacro:macro name="box_inertial" params="x y z mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0"
+          iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0"
+          izz="${0.0833333 * mass * (x*x + y*y)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- variables for base link -->
+  <xacro:property name="width0" value="0.1" />
+  <xacro:property name="length0" value="100" />
+  <xacro:property name="height0" value="0.1" />
+
+  <!-- variables for platform1 -->
+  <xacro:property name="width1" value="5" />
+  <xacro:property name="length1" value="100" />
+  <xacro:property name="height1" value="0.1" />
+
+  <!-- variables for belt -->
+  <xacro:property name="width_b" value="4" />
+  <xacro:property name="length_b" value="100" />
+  <xacro:property name="height_b" value="0.1" />
+
+  <!-- variables for platform2 -->
+  <xacro:property name="width2" value="5" />
+  <xacro:property name="length2" value="100" />
+  <xacro:property name="height2" value="0.1" />
+
+  <!-- common variables -->
+  <xacro:property name="mass0" value="2000.0" />
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>bmw_assembly</robotNamespace>
+   <!--   <robotParam>/world_description</robotParam> -->
+    </plugin>
+  </gazebo>
+
+  <!-- world -->
+  <!-- Used for fixing robot to Gazebo 'base_link' -->
+  <link name="world" />
+
+  <!-- base link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 ${height0/2}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width0} ${length0} ${height0}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${height0/2}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width0} ${length0} ${height0}"/>
+      </geometry>
+    </collision>
+    
+    <xacro:box_inertial x="${width0}" y="${length0}" z="${height0}" mass="${mass0}">
+	<origin xyz="0 0 ${height0/2}" rpy="0 0 0"/>
+    </xacro:box_inertial>
+  </link>
+
+  <gazebo reference="base_link">
+	<material>Gazebo/Black</material>
+  </gazebo>
+
+  <link name="platform_1">
+    <visual>
+      <origin xyz="${width0+width1/2} 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width1} ${length1} ${height1}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="${width0+width1/2} 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width1} ${length1} ${height1}"/>
+      </geometry>
+    </collision>
+
+    <xacro:box_inertial x="${width1}" y="${length1}" z="${height1}" mass="${mass0}">
+	<origin xyz="${width0+width1/2} 0 ${height1/2}" rpy="0 0 0"/>
+    </xacro:box_inertial>
+  </link>
+
+  <gazebo reference="platform_1">
+	<material>Gazebo/Grey</material>
+  </gazebo>
+
+  <link name="my_belt">
+    <visual>
+      <origin xyz="${width0+width1+width_b/2} 0 ${height_b/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width_b} ${length_b} ${height_b}" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="${width0+width1+width_b/2} 0 ${height_b/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width_b} ${length_b} ${height_b}" />
+      </geometry>
+    </collision>
+
+    <xacro:box_inertial x="${width_b}" y="${length_b}" z="${height_b}" mass="${mass0}">
+	<origin xyz="${width0+width1+width_b/2} 0 ${height_b/2}" rpy="0 0 0"/>
+    </xacro:box_inertial>
+  </link>
+
+  <gazebo reference="my_belt">
+    <material>Gazebo/WoodFloor</material>
+  </gazebo>
+
+  <link name="platform_2">
+    <visual>
+      <origin xyz="${width0+width1+width_b+(width2/2)} 0 ${height2/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width2} ${length2} ${height2}" />
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="${width0+width1+width_b+(width2/2)} 0 ${height2/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${width2} ${length2} ${height2}" />
+      </geometry>
+    </collision>
+
+    <xacro:box_inertial x="${width2}" y="${length2}" z="${height2}" mass="${mass0}">
+	<origin xyz="${width0+width1+width_b+(width2/2)} 0 ${height2/2}" rpy="0 0 0"/>
+    </xacro:box_inertial>
+  </link>
+
+  <gazebo reference="platform_2">
+	<material>Gazebo/Grey</material>
+  </gazebo>
+
+  <joint name="world_joint"  type="fixed">
+     <parent link="world"/>
+     <child link="base_link"/>
+  </joint>
+
+  <joint name="base_to_platform1" type="fixed">
+    <parent link="base_link"/>
+    <child link="platform_1"/>
+    <dynamics friction="100.0" />
+    <origin xyz="0 0 0.025"/>
+  </joint>
+
+  <joint name="base_to_platform2" type="fixed">
+    <parent link="base_link"/>
+    <child link="platform_2"/>
+    <dynamics friction="1.0" />
+    <origin xyz="0 0 0.025"/>
+  </joint>
+
+  <joint name="base_to_belt" type="prismatic">
+    <parent link="base_link"/>
+    <child link="my_belt"/>
+    <axis xyz="0 3.1 0"/>
+    <dynamics friction="1.0" />
+    <origin xyz="0 0 0.025"/>
+    <limit lower="-1000000" upper="1000000" velocity="0.5" effort="10"/>
+  </joint>
+
+  <transmission name="belt_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="base_to_belt" />
+    <actuator name="belt_motor">
+      <hardwareInterface>VelocityJointInterface</hardwareInterface> -->
+    <!--  <hardwareInterface>EffortJointInterface</hardwareInterface> -->
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+</robot>
