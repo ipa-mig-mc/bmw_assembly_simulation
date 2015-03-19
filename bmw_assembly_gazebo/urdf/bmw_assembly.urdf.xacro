@@ -33,7 +33,8 @@
   <xacro:property name="height2" value="0.1" />
 
   <!-- common variables -->
-  <xacro:property name="mass0" value="2000.0" />
+  <xacro:property name="mass_platform" value="5.0" />
+  <xacro:property name="mass_belt" value="3.0" />
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
@@ -62,7 +63,7 @@
       </geometry>
     </collision>
     
-    <xacro:box_inertial x="${width0}" y="${length0}" z="${height0}" mass="${mass0}">
+    <xacro:box_inertial x="${width0}" y="${length0}" z="${height0}" mass="${mass_platform}">
 	<origin xyz="0 0 ${height0/2}" rpy="0 0 0"/>
     </xacro:box_inertial>
   </link>
@@ -86,7 +87,7 @@
       </geometry>
     </collision>
 
-    <xacro:box_inertial x="${width1}" y="${length1}" z="${height1}" mass="${mass0}">
+    <xacro:box_inertial x="${width1}" y="${length1}" z="${height1}" mass="${mass_platform}">
 	<origin xyz="${width0+width1/2} 0 ${height1/2}" rpy="0 0 0"/>
     </xacro:box_inertial>
   </link>
@@ -110,7 +111,7 @@
       </geometry>
     </collision>
 
-    <xacro:box_inertial x="${width_b}" y="${length_b}" z="${height_b}" mass="${mass0}">
+    <xacro:box_inertial x="${width_b}" y="${length_b}" z="${height_b}" mass="${mass_belt}">
 	<origin xyz="${width0+width1+width_b/2} 0 ${height_b/2}" rpy="0 0 0"/>
     </xacro:box_inertial>
   </link>
@@ -134,7 +135,7 @@
       </geometry>
     </collision>
 
-    <xacro:box_inertial x="${width2}" y="${length2}" z="${height2}" mass="${mass0}">
+    <xacro:box_inertial x="${width2}" y="${length2}" z="${height2}" mass="${mass_platform}">
 	<origin xyz="${width0+width1+width_b+(width2/2)} 0 ${height2/2}" rpy="0 0 0"/>
     </xacro:box_inertial>
   </link>
@@ -151,31 +152,31 @@
   <joint name="base_to_platform1" type="fixed">
     <parent link="base_link"/>
     <child link="platform_1"/>
-    <dynamics friction="100.0" />
-    <origin xyz="0 0 0.025"/>
+    <dynamics damping="0.7" friction="1.0"/> 
+    <origin xyz="0 0 0"/>
   </joint>
 
   <joint name="base_to_platform2" type="fixed">
     <parent link="base_link"/>
     <child link="platform_2"/>
-    <dynamics friction="1.0" />
-    <origin xyz="0 0 0.025"/>
+    <dynamics damping="0.7" friction="1.0"/> 
+    <origin xyz="0 0 0"/>
   </joint>
 
   <joint name="base_to_belt" type="prismatic">
     <parent link="base_link"/>
     <child link="my_belt"/>
-    <axis xyz="0 3.1 0"/>
-    <dynamics friction="1.0" />
-    <origin xyz="0 0 0.025"/>
-    <limit lower="-1000000" upper="1000000" velocity="0.5" effort="10"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="0.7" friction="1.0"/> 
+    <origin xyz="0 0 0"/>
+    <limit lower="-1000000" upper="1000000" velocity="0.5" effort="1000"/>
   </joint>
 
   <transmission name="belt_trans">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="base_to_belt" />
     <actuator name="belt_motor">
-      <hardwareInterface>VelocityJointInterface</hardwareInterface> -->
+      <hardwareInterface>VelocityJointInterface</hardwareInterface>
     <!--  <hardwareInterface>EffortJointInterface</hardwareInterface> -->
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>

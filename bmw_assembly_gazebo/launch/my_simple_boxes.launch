@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- Convert xacro and put on parameter server -->
+	<param name="robot_description" command="$(find xacro)/xacro.py $(find bmw_assembly_gazebo)/urdf/my_simple_boxes.urdf.xacro" />
+
+	<!-- Spawn robot into Gazebo -->
+	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model platform" />
+
+</launch>

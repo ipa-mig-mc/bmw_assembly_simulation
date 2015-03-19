@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+	name="my_simple_boxes">
+
+  <xacro:macro name="box_inertial" params="x y z mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (y*y + z*z)}" ixy="0.0" ixz="0.0"
+          iyy="${0.0833333 * mass * (x*x + z*z)}" iyz="0.0"
+          izz="${0.0833333 * mass * (x*x + y*y)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- box dimensions -->
+  <xacro:property name="box_width" value="2" />
+  <xacro:property name="box_length" value="2" />
+  <xacro:property name="box_height" value="2" />
+
+  <!-- box mass -->
+  <xacro:property name="box_mass" value="5.0" />
+
+  <!-- desired origin of first box relative to the belt  -->
+  <!-- ${width0+width1+width_b/2} x x -->
+  <xacro:property name="o_x" value="7.1" />
+  <xacro:property name="o_y" value="0" />
+  <xacro:property name="o_z" value="5" />
+
+
+  <!-- box 1 -->
+  <link name="box_1">
+    <visual>
+      <origin xyz="${o_x} ${o_y} ${o_z}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${box_width} ${box_length} ${box_height}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="${o_x} ${o_y} ${o_z}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${box_width} ${box_length} ${box_height}"/>
+      </geometry>
+    </collision>
+    
+    <xacro:box_inertial x="${box_width}" y="${box_length}" z="${box_height}" mass="${box_mass}">
+	<origin xyz="${o_x} ${o_y} ${o_z}" rpy="0 0 0"/>
+    </xacro:box_inertial>
+  </link>
+
+  <gazebo reference="box_1">
+	<material>Gazebo/Green</material>
+  </gazebo>
+
+
+</robot>
+
